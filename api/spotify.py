@@ -75,31 +75,110 @@ def get(url):
     else:
         return response.json()
 
+def getAudioAnalysis(track_id):
+    """Obtiene el análisis de audio de una canción específica"""
+    url = f"https://api.spotify.com/v1/audio-analysis/{track_id}"
+    try:
+        analysis = get(url)
+        return analysis
+    except Exception as e:
+        print(f"Error getting audio analysis: {e}")
+        return None
 
-def barGen(barCount):
+def getAudioFeatures(track_id):
+    """Obtiene características de audio como tempo, energía, etc."""
+    url = f"https://api.spotify.com/v1/audio-features/{track_id}"
+    try:
+        features = get(url)
+        return features
+    except Exception as e:
+        print(f"Error getting audio features: {e}")
+        return None
+
+def barGen(barCount, track_id=None, progress_ms=0):
     barCSS = ""
     left = 1
-    for i in range(1, barCount + 1):
-        anim = random.randint(400, 900)
-        maxHeight = random.randint(12, 28)
-        delay = random.randint(-800, 0)
-        x1 = random.uniform(0.1, 0.9)
-        y1 = random.uniform(1.5, 2.5)
-        x2 = random.uniform(0.1, 0.9)
-        y2 = random.uniform(1.5, 2.5)
+    
+    # Intentar obtener características de audio
+    audio_features = None
+    if track_id:
+        audio_features = getAudioFeatures(track_id)
+    
+    # Si tenemos datos de audio, usarlos para generar barras más precisas
+    if audio_features:
+        tempo = audio_features.get('tempo', 120)  # BPM
+        energy = audio_features.get('energy', 0.5)  # 0.0 - 1.0
+        danceability = audio_features.get('danceability', 0.5)
         
-        barCSS += (
-            ".bar:nth-child({}) {{ "
-            "left: {}px; "
-            "animation: pulse {}ms {}ms cubic-bezier({},{},{},{}) infinite alternate, "
-            "gradient 15s ease infinite, "
-            "neonGlow {}ms ease-in-out infinite; "
-            "--max-height: {}px; "
-            "}} ".format(
-                i, left, anim, delay, x1, y1, x2, y2, anim * 2, maxHeight
+        # Calcular duración base según el tempo
+        base_duration = int(60000 / tempo)  # ms por beat
+        
+        # Ajustar rango de alturas según energía
+        min_height = int(8 + (energy * 10))
+        max_height = int(15 + (energy * 20))
+        
+        for i in range(1, barCount + 1):
+            # Duración basada en tempo real con variación
+            variation = random.uniform(0.8, 1.2)
+            anim = int(base_duration * variation)
+            
+            # Altura según energía y danceability
+            height_factor = energy * danceability
+            maxHeight = random.randint(
+                int(min_height * (1 + height_factor)),
+                int(max_height * (1 + height_factor))
             )
-        )
-        left += 4
+            
+            # Delay basado en el progreso de la canción
+            # Para que las barras parezcan sincronizadas con el tiempo actual
+            phase_offset = (i * (360 / barCount)) % 360
+            delay = int(-anim * (phase_offset / 360))
+            
+            # Cubic-bezier más agresivo para canciones con alta energía
+            if energy > 0.7:
+                x1, y1 = random.uniform(0.05, 0.3), random.uniform(2.0, 2.8)
+                x2, y2 = random.uniform(0.7, 0.95), random.uniform(2.0, 2.8)
+            else:
+                x1, y1 = random.uniform(0.2, 0.5), random.uniform(1.2, 1.8)
+                x2, y2 = random.uniform(0.5, 0.8), random.uniform(1.2, 1.8)
+            
+            barCSS += (
+                ".bar:nth-child({}) {{ "
+                "left: {}px; "
+                "animation: pulse {}ms {}ms cubic-bezier({},{},{},{}) infinite alternate, "
+                "gradient 15s ease infinite, "
+                "neonGlow {}ms ease-in-out infinite; "
+                "--max-height: {}px; "
+                "}} ".format(
+                    i, left, anim, delay, x1, y1, x2, y2, anim * 2, maxHeight
+                )
+            )
+            left += 4
+    else:
+        # Fallback: usar generación aleatoria si no hay datos
+        for i in range(1, barCount + 1):
+            anim = random.randint(400, 900)
+            maxHeight = random.randint(12, 28)
+            delay = random.randint(-800, 0)
+            
+            x1 = random.uniform(0.1, 0.9)
+            y1 = random.uniform(1.5, 2.5)
+            x2 = random.uniform(0.1, 0.9)
+            y2 = random.uniform(1.5, 2.5)
+            
+            barCSS += (
+                ".bar:nth-child({}) {{ "
+                "left: {}px; "
+                "animation: pulse {}ms {}ms cubic-bezier({},{},{},{}) infinite alternate, "
+                "gradient 15s ease infinite, "
+                "neonGlow {}ms ease-in-out infinite; "
+                "--max-height: {}px; "
+                "}} ".format(
+                    i, left, anim, delay, x1, y1, x2, y2, anim * 2, maxHeight
+                )
+            )
+            left += 4
+    
     return barCSS
 
 
@@ -126,7 +205,12 @@ def loadImageB64(url):
 def makeSVG(data, background_color, border_color):
     barCount = 84
     contentBar = "".join(["<div class='bar'></div>" for _ in range(barCount)])
-    barCSS = barGen(barCount)
+    # Obtener el track_id y progreso
+    track_id = item.get("id")
+    progress_ms = data.get("progress_ms", 0) if "is_playing" in data else 0
+
+    # Generar barras con datos de audio
+    barCSS = barGen(barCount, track_id, progress_ms)
 
     if not "is_playing" in data:
         #contentBar = "" #Shows/Hides the EQ bar if no song is currently playing
