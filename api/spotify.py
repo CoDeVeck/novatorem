@@ -80,15 +80,23 @@ def barGen(barCount):
     barCSS = ""
     left = 1
     for i in range(1, barCount + 1):
-        anim = random.randint(500, 1000)
-        # below code generates random cubic-bezier values
-        x1 = random.random()
-        y1 = random.random()*2
-        x2 = random.random()
-        y2 = random.random()*2
+        anim = random.randint(400, 900)
+        maxHeight = random.randint(12, 28)
+        delay = random.randint(-800, 0)
+        x1 = random.uniform(0.1, 0.9)
+        y1 = random.uniform(1.5, 2.5)
+        x2 = random.uniform(0.1, 0.9)
+        y2 = random.uniform(1.5, 2.5)
+        
         barCSS += (
-            ".bar:nth-child({})  {{ left: {}px; animation-duration: 15s, {}ms; animation-timing-function: ease, cubic-bezier({},{},{},{}); }}".format(
-                i, left, anim, x1, y1, x2, y2
+            ".bar:nth-child({}) {{ "
+            "left: {}px; "
+            "animation: pulse {}ms {}ms cubic-bezier({},{},{},{}) infinite alternate, "
+            "gradient 15s ease infinite, "
+            "neonGlow {}ms ease-in-out infinite; "
+            "--max-height: {}px; "
+            "}} ".format(
+                i, left, anim, delay, x1, y1, x2, y2, anim * 2, maxHeight
             )
         )
         left += 4
