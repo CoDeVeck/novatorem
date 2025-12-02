@@ -34,30 +34,34 @@
                     background: linear-gradient(135deg, #1a0000 0%, #330000 100%);
                     position: relative;
                     overflow: visible;
+                    margin: 10px;
+
                 }
 
                 /* Borde animado con gradiente rojo en movimiento */
-                .container::before {
+              .container::before {
                     content: '';
                     position: absolute;
-                    inset: -3px;
-                    border-radius: 5px;
-                    padding: 3px;
+                    inset: -4px;
+                    border-radius: 8px;
+                    padding: 4px;
                     background: linear-gradient(90deg, 
                         #ff0000 0%, 
-                        #ff3333 25%, 
-                        #ff6666 50%, 
-                        #ff0000 75%, 
-                        #ff3333 100%
+                        #ff3333 20%, 
+                        #ff6666 40%, 
+                        #ff0000 60%, 
+                        #ff3333 80%,
+                        #ff0000 100%
                     );
-                    background-size: 300% 100%;
+                    background-size: 400% 100%;
                     -webkit-mask: 
                         linear-gradient(#fff 0 0) content-box, 
                         linear-gradient(#fff 0 0);
                     -webkit-mask-composite: xor;
                     mask-composite: exclude;
-                    animation: borderSlide 3s linear infinite;
-                    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.8));
+                    animation: borderSlide 4s linear infinite;
+                    filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.9));
+                    z-index: -1;
                 }
 
                 @keyframes borderSlide {
