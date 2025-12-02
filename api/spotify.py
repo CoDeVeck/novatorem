@@ -205,12 +205,6 @@ def loadImageB64(url):
 def makeSVG(data, background_color, border_color):
     barCount = 84
     contentBar = "".join(["<div class='bar'></div>" for _ in range(barCount)])
-    # Obtener el track_id y progreso
-    track_id = item.get("id")
-    progress_ms = data.get("progress_ms", 0) if "is_playing" in data else 0
-
-    # Generar barras con datos de audio
-    barCSS = barGen(barCount, track_id, progress_ms)
 
     if not "is_playing" in data:
         #contentBar = "" #Shows/Hides the EQ bar if no song is currently playing
@@ -222,6 +216,14 @@ def makeSVG(data, background_color, border_color):
     else:
         item = data["item"]
         currentStatus = "Vibing to:"
+
+
+  # Obtener el track_id y progreso
+    track_id = item.get("id")
+    progress_ms = data.get("progress_ms", 0) if "is_playing" in data else 0
+
+    # Generar barras con datos de audio
+    barCSS = barGen(barCount, track_id, progress_ms)
 
     if item["album"]["images"] == []:
         image = PLACEHOLDER_IMAGE
