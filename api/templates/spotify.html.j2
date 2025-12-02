@@ -49,14 +49,15 @@
                     inset: -4px;
                     border-radius: 8px;
                     padding: 4px;
-                   background: linear-gradient(90deg, 
-                    #ffff00 0%, 
-                    #ffcc00 25%, 
-                    #ff9900 50%, 
-                    #ffff00 75%, 
-                    #ffcc00 100%
-                );
+                     background: linear-gradient(90deg, 
+                    #4a4a4a 0%, 
+                    #3d3d3d 25%, 
+                    #2f2f2f 50%, 
+                    #4a4a4a 75%, 
+                    #3d3d3d 100%
+                    );
 
+                    filter: drop-shadow(0 0 15px rgba(50, 50, 50, 0.9));
                     background-size: 400% 100%;
                     -webkit-mask: 
                         linear-gradient(#fff 0 0) content-box, 
@@ -64,7 +65,7 @@
                     -webkit-mask-composite: xor;
                     mask-composite: exclude;
                     animation: borderSlide 4s linear infinite;
-                    filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.9));
+
                     z-index: -1;
                 }
 
